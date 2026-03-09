@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>בועות האותיות 🫧</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #0a0118 0%, #1a0533 50%, #0d0222 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Arial Hebrew', Arial, sans-serif;
+    color: white;
+    direction: rtl;
+    user-select: none;
+    padding: 16px;
+  }
+
+  #header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 12px;
+    padding: 12px 28px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+  }
+
+  .stat { text-align: center; }
+  .stat-label { font-size: 11px; color: #aaa; letter-spacing: 2px; }
+  .stat-value { font-size: 28px; font-weight: bold; line-height: 1; }
+  #score-val { color: #C77DFF; }
+  #round-val { color: #4ECDC4; }
+  #timer-val { color: #4ECDC4; }
+  #streak-val { font-size: 22px; min-width: 50px; text-align: center; }
+
+  #settings-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    cursor: pointer;
+    font-size: 20px;
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  #settings-btn:hover { background: rgba(255,255,255,0.2); }
+
+  #hint {
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: rgba(255,255,255,0.7);
+    background: rgba(200,100,255,0.1);
+    padding: 6px 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(200,100,255,0.2);
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  #hint span { color: #C77DFF; font-weight: bold; font-size: 20px; }
+
+  #canvas-wrap {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(150,50,255,0.4);
+  }
+
+  canvas { display: block; cursor: default; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    backdrop-filter: blur(4px);
+  }
+
+  #overlay-idle { background: rgba(10,1,24,0.88); }
+  #overlay-gameover { background: rgba(10,1,24,0.92); display: none; }
+
+  .overlay-title { font-size: 32px; font-weight: bold; color: #C77DFF; }
+  .overlay-sub { font-size: 15px; color: rgba(255,255,255,0.65); text-align: center; max-width: 300px; }
+  .overlay-big { font-size: 52px; }
+  .overlay-score { font-size: 48px; font-weight: bold; color: white; }
+  .overlay-stars { color: rgba(255,255,255,0.5); font-size: 14px; }
+
+  .game-btn {
+    padding: 14px 44px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    font-family: 'Arial Hebrew', Arial, sans-serif;
+    transition: transform 0.1s;
+  }
+  .game-btn:hover { transform: scale(1.05); }
+  #btn-start { background: linear-gradient(135deg, #C77DFF, #9B59B6); box-shadow: 0 4px 20px rgba(180,100,255,0.5); }
+  #btn-restart { background: linear-gradient(135deg, #4ECDC4, #45B7D1); box-shadow: 0 4px 20px rgba(78,205,196,0.4); }
+
+  #tip {
+    margin-top: 12px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* Settings modal */
+  #settings-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  #settings-modal.open { display: flex; }
+
+  #settings-box {
+    background: linear-gradient(135deg, #1a0533, #2a0a4a);
+    border: 1px solid rgba(200,120,255,0.3);
+    border-radius: 24px;
+    padding: 28px;
+    width: 480px;
+    max-width: 95vw;
+    box-shadow: 0 0 60px rgba(150,50,255,0.4);
+  }
+
+  #settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  #settings-title { font-size: 22px; font-weight: bold; color: #C77DFF; }
+  #settings-close {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 50%;
+    width: 34px; height: 34px;
+    cursor: pointer;
+    color: white;
+    font-size: 18px;
+  }
+
+  #letter-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .letter-tab {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.08);
+    color: white;
+    font-family: 'Arial Hebrew', Arial, sans-serif;
+    transition: all 0.15s;
+  }
+  .letter-tab.active {
+    background: linear-gradient(135deg, #C77DFF, #9B59B6);
+    border-color: #C77DFF;
+    box-shadow: 0 0 16px rgba(200,120,255,0.5);
+  }
+
+  #words-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .word-card {
+    background: rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 12px 10px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .word-card-emoji { font-size: 36px; }
+  .word-card-label { font-size: 15px; color: rgba(255,255,255,0.85); font-weight: bold; }
+
+  #settings-footer { margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.3); text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="stat">
+    <div class="stat-label">ניקוד</div>
+    <div class="stat-value" id="score-val">0</div>
+  </div>
+  <div id="streak-val"></div>
+  <div class="stat">
+    <div class="stat-label">סיבוב</div>
+    <div class="stat-value" id="round-val">-</div>
+  </div>
+  <div class="stat" id="timer-wrap" style="display:none">
+    <div class="stat-label">זמן</div>
+    <div class="stat-value" id="timer-val">25</div>
+  </div>
+  <button id="settings-btn">⚙️</button>
+</div>
+
+<div id="hint" style="visibility:hidden">לחץ על בועה עם מילה שמתחילה ב־<span id="hint-letter"></span></div>
+
+<div id="canvas-wrap">
+  <canvas id="canvas" width="600" height="500"></canvas>
+
+  <div class="overlay" id="overlay-idle">
+    <div style="font-size:48px">🫧</div>
+    <div class="overlay-title">בועות האותיות</div>
+    <div class="overlay-sub">לחץ על בועה עם מילה שמתחילה באות שבמרכז!</div>
+    <button class="game-btn" id="btn-start">התחל משחק! 🚀</button>
+  </div>
+
+  <div class="overlay" id="overlay-gameover">
+    <div class="overlay-big" id="go-trophy">🏆</div>
+    <div class="overlay-title" id="go-title">מדהים! אלוף!</div>
+    <div class="overlay-score" id="go-score">0 נקודות</div>
+    <div class="overlay-stars" id="go-stars">⭐⭐⭐ מושלם!</div>
+    <button class="game-btn" id="btn-restart">שחק שוב! 🔄</button>
+  </div>
+</div>
+
+<div id="tip">💡 טיפ: רצף תשובות נכונות = ניקוד כפול!</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal">
+  <div id="settings-box">
+    <div id="settings-header">
+      <div id="settings-title">⚙️ מילון המשחק</div>
+      <button id="settings-close">✕</button>
+    </div>
+    <div id="letter-tabs"></div>
+    <div id="words-grid"></div>
+    <div id="settings-footer"></div>
+  </div>
+</div>
+
+<script>
+const WORD_DATA = {
+  'ר': [
+    { word: 'רגל', emoji: '🦵' }, { word: 'רכבת', emoji: '🚆' },
+    { word: 'ראש', emoji: '🧑' }, { word: 'ריבוע', emoji: '⏹️' },
+    { word: 'רדיו', emoji: '📻' },
+  ],
+  'ב': [
+    { word: 'בית', emoji: '🏠' }, { word: 'בננה', emoji: '🍌' },
+    { word: 'בלון', emoji: '🎈' }, { word: 'ברווז', emoji: '🦆' },
+    { word: 'ביצה', emoji: '🥚' }, { word: 'ברבור', emoji: '🦢' },
+  ],
+  'ח': [
+    { word: 'חתול', emoji: '🐱' }, { word: 'חיטה', emoji: '🌾' },
+    { word: 'חרב', emoji: '⚔️' }, { word: 'חלב', emoji: '🥛' },
+    { word: 'חייזר', emoji: '👽' }, { word: 'חום', emoji: '🟫' },
+  ],
+  'ת': [
+    { word: 'תפוח', emoji: '🍎' }, { word: 'תות', emoji: '🍓' },
+    { word: 'תנין', emoji: '🐊' }, { word: 'תרנגול', emoji: '🐓' },
+    { word: 'תיק', emoji: '🎒' }, { word: 'תמנון', emoji: '🐙' },
+  ],
+  'א': [
+    { word: 'ארנב', emoji: '🐰' }, { word: 'אריה', emoji: '🦁' },
+    { word: 'אגס', emoji: '🍐' }, { word: 'אוטובוס', emoji: '🚌' },
+    { word: 'אדום', emoji: '🟥' }, { word: 'אננס', emoji: '🍍' },
+  ],
+  'ג': [
+    { word: 'גזר', emoji: '🥕' }, { word: 'גמל', emoji: '🐪' },
+    { word: 'גיטרה', emoji: '🎸' }, { word: 'גלידה', emoji: '🍦' },
+    { word: 'גורילה', emoji: '🦍' }, { word: 'גשר', emoji: '🌉' },
+  ],
+  'ד': [
+    { word: 'דג', emoji: '🐟' }, { word: 'דוב', emoji: '🐻' },
+    { word: 'דלת', emoji: '🚪' }, { word: 'דינוזאור', emoji: '🦕' },
+    { word: 'דולפין', emoji: '🐬' }, { word: 'דרקון', emoji: '🐉' },
+  ],
+  'ק': [
+    { word: 'קוף', emoji: '🐒' }, { word: 'קיפוד', emoji: '🦔' },
+    { word: 'קרנף', emoji: '🦏' }, { word: 'קשת', emoji: '🌈' },
+    { word: 'קסדה', emoji: '⛑️' }, { word: 'קנגורו', emoji: '🦘' },
+  ],
+};
+
+const LETTERS = ['ר', 'ב', 'ח', 'ת', 'א', 'ג', 'ד', 'ק'];
+const DISTRACTOR_POOL = [
+  { word: 'כיסא', emoji: '🪑' }, { word: 'ירח', emoji: '🌙' },
+  { word: 'פרח', emoji: '🌸' }, { word: 'שמש', emoji: '☀️' },
+  { word: 'עוגה', emoji: '🎂' }, { word: 'מלון', emoji: '🍈' },
+  { word: 'נמר', emoji: '🐆' }, { word: 'לב', emoji: '❤️' },
+  { word: 'ספר', emoji: '📚' }, { word: 'מכונית', emoji: '🏎️' },
+  { word: 'עכביש', emoji: '🕷️' },
+];
+const BUBBLE_COLORS = [
+  { bg: '#FF6B6B', glow: '#FF6B6B88' },
+  { bg: '#4ECDC4', glow: '#4ECDC488' },
+  { bg: '#45B7D1', glow: '#45B7D188' },
+  { bg: '#FFA07A', glow: '#FFA07A88' },
+  { bg: '#98D8C8', glow: '#98D8C888' },
+  { bg: '#DDA0DD', glow: '#DDA0DD88' },
+  { bg: '#F0E68C', glow: '#F0E68C88' },
+  { bg: '#87CEEB', glow: '#87CEEB88' },
+];
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const FW = canvas.width, FH = canvas.height;
+
+let state = {
+  phase: 'idle',
+  score: 0, streak: 0,
+  round: 0, totalRounds: LETTERS.length,
+  currentLetter: '',
+  timer: 25,
+  letterOrder: [],
+  bubbles: [], particles: [], effects: [],
+  centerScale: 1,
+};
+let timerInterval = null;
+let animFrame = null;
+
+// --- Bubble generation ---
+function generateBubbles(letter) {
+  const correct = [...WORD_DATA[letter]].sort(() => Math.random() - 0.5).slice(0, 2);
+  const excludeForLetter = { 'א': ['מכונית', 'עוגה', 'עכביש'], 'ק': ['כיסא'] };
+  const excluded = excludeForLetter[letter] || [];
+  const distractors = [...DISTRACTOR_POOL]
+    .filter(w => !excluded.includes(w.word))
+    .sort(() => Math.random() - 0.5).slice(0, 5);
+  const all = [
+    ...correct.map(w => ({ ...w, isCorrect: true })),
+    ...distractors.map(w => ({ ...w, isCorrect: false })),
+  ].sort(() => Math.random() - 0.5);
+
+  return all.map((item, i) => {
+    let x, y, tries = 0;
+    do {
+      x = 80 + Math.random() * (FW - 160);
+      y = 80 + Math.random() * (FH - 160);
+      tries++;
+    } while (Math.hypot(x - FW/2, y - FH/2) < 150 && tries < 50);
+
+    const color = BUBBLE_COLORS[i % BUBBLE_COLORS.length];
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.3 + Math.random() * 0.5;
+    return {
+      id: i, ...item,
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      color,
+      size: 80 + Math.random() * 30,
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: 0.02 + Math.random() * 0.02,
+      popping: false,
+      wrong: false,
+      wrongTimer: 0,
+    };
+  });
+}
+
+// --- Game flow ---
+function startGame() {
+  state.letterOrder = [...LETTERS].sort(() => Math.random() - 0.5);
+  state.score = 0; state.streak = 0; state.round = 0;
+  document.getElementById('overlay-idle').style.display = 'none';
+  document.getElementById('overlay-gameover').style.display = 'none';
+  document.getElementById('timer-wrap').style.display = 'block';
+  startRound();
+}
+
+function startRound() {
+  const letter = state.letterOrder[state.round];
+  state.currentLetter = letter;
+  state.timer = 25;
+  state.bubbles = generateBubbles(letter);
+  state.centerScale = 1.3;
+  state.phase = 'playing';
+
+  setTimeout(() => speak(letter), 300);
+
+  document.getElementById('hint').style.visibility = 'visible';
+  document.getElementById('hint-letter').textContent = letter;
+  canvas.style.cursor = 'pointer';
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    state.timer--;
+    updateHUD();
+    if (state.timer <= 0) {
+      clearInterval(timerInterval);
+      state.streak = 0;
+      nextRound(false);
+    }
+  }, 1000);
+  updateHUD();
+}
+
+function nextRound(wasCorrect) {
+  clearInterval(timerInterval);
+  state.round++;
+  if (state.round >= state.totalRounds) {
+    showGameOver();
+    return;
+  }
+  setTimeout(startRound, wasCorrect ? 800 : 1200);
+}
+
+function showGameOver() {
+  state.phase = 'gameover';
+  canvas.style.cursor = 'default';
+  document.getElementById('hint').style.visibility = 'hidden';
+  document.getElementById('timer-wrap').style.display = 'none';
+
+  const sc = state.score;
+  document.getElementById('go-trophy').textContent = sc >= 400 ? '🏆' : sc >= 200 ? '🥈' : '🎮';
+  document.getElementById('go-title').textContent = sc >= 400 ? 'מדהים! אלוף!' : sc >= 200 ? 'כל הכבוד!' : 'סיום משחק!';
+  document.getElementById('go-score').textContent = sc + ' נקודות';
+  document.getElementById('go-stars').textContent = sc >= 500 ? '⭐⭐⭐ מושלם!' : sc >= 300 ? '⭐⭐ מצוין!' : '⭐ נסה שוב!';
+  document.getElementById('overlay-gameover').style.display = 'flex';
+  updateHUD();
+}
+
+function handleClick(mx, my) {
+  if (state.phase !== 'playing') return;
+  for (const b of state.bubbles) {
+    if (b.popping || b.wrong) continue;
+    if (Math.hypot(mx - b.x, my - b.y) < b.size / 2) {
+      speak(b.word);
+      if (b.isCorrect) {
+        b.popping = true;
+        const bonus = state.streak >= 2 ? 2 : 1;
+        const pts = 10 * bonus * Math.ceil(state.timer / 5);
+        state.score += pts;
+        state.streak++;
+        state.centerScale = 1.4;
+        spawnParticles(b.x, b.y, b.color.bg, 20);
+        state.effects.push({ text: '+' + pts + (state.streak > 1 ? ' 🔥' : ''), x: b.x, y: b.y - 20, life: 1, color: b.color.bg });
+        updateHUD();
+
+        setTimeout(() => {
+          const remaining = state.bubbles.filter(x => x.isCorrect && !x.popping);
+          if (remaining.length === 0) nextRound(true);
+        }, 300);
+      } else {
+        b.wrong = true;
+        state.streak = 0;
+        state.score = Math.max(0, state.score - 5);
+        state.effects.push({ text: '-5 😬', x: b.x, y: b.y - 20, life: 1, color: '#FF4444' });
+        updateHUD();
+        setTimeout(() => { b.wrong = false; }, 600);
+      }
+      break;
+    }
+  }
+}
+
+function spawnParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i / count) + Math.random() * 0.5;
+    state.particles.push({
+      x, y,
+      vx: Math.cos(angle) * (2 + Math.random() * 4),
+      vy: Math.sin(angle) * (2 + Math.random() * 4),
+      life: 1,
+      decay: 0.02 + Math.random() * 0.03,
+      size: 4 + Math.random() * 8,
+      emoji: ['✨','⭐','💫','🌟'][Math.floor(Math.random() * 4)],
+    });
+  }
+}
+
+function updateHUD() {
+  document.getElementById('score-val').textContent = state.score;
+  document.getElementById('round-val').textContent =
+    state.phase === 'playing' ? (state.round + 1) + '/' + state.totalRounds : '-';
+  const tv = document.getElementById('timer-val');
+  tv.textContent = state.timer;
+  tv.style.color = state.timer > 15 ? '#4ECDC4' : state.timer > 8 ? '#FFD700' : '#FF6B6B';
+  const streak = state.streak;
+  document.getElementById('streak-val').textContent =
+    streak >= 3 ? '🔥🔥🔥' : streak >= 2 ? '🔥🔥' : streak >= 1 ? '🔥' : '';
+}
+
+// --- Render loop ---
+function animate() {
+  // Update bubbles
+  for (const b of state.bubbles) {
+    if (b.popping) continue;
+    b.wobble += b.wobbleSpeed;
+    b.x += b.vx + Math.sin(b.wobble) * 0.3;
+    b.y += b.vy + Math.cos(b.wobble * 0.7) * 0.2;
+
+    const margin = b.size / 2 + 10;
+    const dx = b.x - FW/2, dy = b.y - FH/2;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 100) { b.vx = (dx/dist) * 0.8; b.vy = (dy/dist) * 0.8; }
+    if (b.x < margin) { b.x = margin; b.vx = Math.abs(b.vx); }
+    if (b.x > FW - margin) { b.x = FW - margin; b.vx = -Math.abs(b.vx); }
+    if (b.y < margin) { b.y = margin; b.vy = Math.abs(b.vy); }
+    if (b.y > FH - margin) { b.y = FH - margin; b.vy = -Math.abs(b.vy); }
+  }
+
+  // Update particles
+  state.particles = state.particles.map(p => ({
+    ...p, x: p.x + p.vx, y: p.y + p.vy, vy: p.vy + 0.15, life: p.life - p.decay,
+  })).filter(p => p.life > 0);
+
+  // Update effects
+  state.effects = state.effects.map(e => ({
+    ...e, y: e.y - 1.5, life: e.life - 0.025,
+  })).filter(e => e.life > 0);
+
+  if (state.centerScale > 1) state.centerScale -= 0.05;
+
+  draw();
+  animFrame = requestAnimationFrame(animate);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, FW, FH);
+
+  // Background
+  const bg = ctx.createRadialGradient(FW/2, FH/2, 0, FW/2, FH/2, FW);
+  bg.addColorStop(0, '#1a0533');
+  bg.addColorStop(1, '#0a0118');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, FW, FH);
+
+  // Stars
+  for (let i = 0; i < 60; i++) {
+    const sx = (i * 137.5) % FW, sy = (i * 89.3) % FH;
+    ctx.beginPath();
+    ctx.arc(sx, sy, i % 3 === 0 ? 1.5 : 0.8, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${0.2 + (i%5)*0.1})`;
+    ctx.fill();
+  }
+
+  // Center glow + letter
+  if (state.phase === 'playing' && state.currentLetter) {
+    const cg = ctx.createRadialGradient(FW/2, FH/2, 0, FW/2, FH/2, 120);
+    cg.addColorStop(0, 'rgba(180,100,255,0.3)');
+    cg.addColorStop(1, 'rgba(180,100,255,0)');
+    ctx.fillStyle = cg;
+    ctx.beginPath(); ctx.arc(FW/2, FH/2, 120, 0, Math.PI*2); ctx.fill();
+
+    ctx.save();
+    ctx.translate(FW/2, FH/2);
+    ctx.scale(state.centerScale, state.centerScale);
+
+    const cGrad = ctx.createRadialGradient(0, -10, 5, 0, 0, 60);
+    cGrad.addColorStop(0, '#C77DFF');
+    cGrad.addColorStop(0.5, '#9B59B6');
+    cGrad.addColorStop(1, '#6C3483');
+    ctx.beginPath(); ctx.arc(0, 0, 65, 0, Math.PI*2);
+    ctx.fillStyle = cGrad; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 3; ctx.stroke();
+
+    ctx.beginPath(); ctx.arc(0, 0, 55, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1; ctx.stroke();
+
+    ctx.font = "bold 56px 'Arial Hebrew', Arial";
+    ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(200,120,255,0.8)'; ctx.shadowBlur = 20;
+    ctx.fillText(state.currentLetter, 0, 3);
+    ctx.shadowBlur = 0;
+    ctx.restore();
+
+    // Timer ring
+    const tAngle = (state.timer / 25) * Math.PI * 2 - Math.PI / 2;
+    const tColor = state.timer > 15 ? '#4ECDC4' : state.timer > 8 ? '#FFD700' : '#FF6B6B';
+    ctx.beginPath();
+    ctx.arc(FW/2, FH/2, 78, -Math.PI/2, tAngle);
+    ctx.strokeStyle = tColor; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.stroke();
+  }
+
+  // Bubbles
+  for (const b of state.bubbles) {
+    if (b.popping) continue;
+    const r = b.size / 2;
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    if (b.wrong) ctx.translate(Math.sin(Date.now() * 0.05) * 5, 0);
+
+    ctx.shadowColor = b.color.glow; ctx.shadowBlur = 20;
+
+    const bGrad = ctx.createRadialGradient(-r*0.3, -r*0.3, r*0.1, 0, 0, r);
+    bGrad.addColorStop(0, b.wrong ? '#FF444855' : b.color.bg + '88');
+    bGrad.addColorStop(0.7, b.wrong ? '#FF222266' : b.color.bg + '55');
+    bGrad.addColorStop(1, b.wrong ? '#CC000044' : b.color.bg + '33');
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
+    ctx.fillStyle = bGrad; ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
+    ctx.strokeStyle = b.wrong ? '#FF4444' : 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = b.wrong ? 3 : 2; ctx.stroke();
+
+    // Emoji on top
+    ctx.globalAlpha = 1;
+    ctx.font = `${r * 0.85}px serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(b.emoji, 0, 4);
+
+    // Shine
+    ctx.beginPath();
+    ctx.ellipse(-r*0.25, -r*0.35, r*0.25, r*0.15, -Math.PI/4, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fill();
+
+    ctx.restore();
+  }
+
+  // Particles
+  for (const p of state.particles) {
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.font = `${p.size}px serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(p.emoji, p.x, p.y);
+    ctx.restore();
+  }
+
+  // Score effects
+  for (const e of state.effects) {
+    ctx.save();
+    ctx.globalAlpha = e.life;
+    ctx.font = "bold 24px 'Arial Hebrew', Arial";
+    ctx.fillStyle = e.color;
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 6;
+    ctx.fillText(e.text, e.x, e.y);
+    ctx.restore();
+  }
+}
+
+// --- Settings ---
+let settingsLetter = LETTERS[0];
+
+function buildSettings(letter) {
+  settingsLetter = letter;
+  const tabs = document.getElementById('letter-tabs');
+  tabs.innerHTML = '';
+  LETTERS.forEach(l => {
+    const btn = document.createElement('button');
+    btn.className = 'letter-tab' + (l === letter ? ' active' : '');
+    btn.textContent = l;
+    btn.onclick = () => buildSettings(l);
+    tabs.appendChild(btn);
+  });
+
+  const grid = document.getElementById('words-grid');
+  grid.innerHTML = '';
+  (WORD_DATA[letter] || []).forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'word-card';
+    card.innerHTML = `<div class="word-card-emoji">${item.emoji}</div><div class="word-card-label">${item.word}</div>`;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('settings-footer').textContent =
+    `בכל סיבוב מופיעות 2 מילים אקראיות מתוך ${(WORD_DATA[letter] || []).length}`;
+}
+
+// --- Audio playback from M4A files ---
+let currentAudio = null;
+
+function speak(filename) {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+  }
+  currentAudio = new Audio(filename + '.m4a');
+  currentAudio.play().catch(() => {});
+}
+
+// --- Event listeners ---
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  // Check if clicked center letter
+  if (state.phase === 'playing') {
+    if (Math.hypot(mx - FW/2, my - FH/2) < 65) {
+      speak(state.currentLetter);
+      return;
+    }
+  }
+
+  handleClick(mx, my);
+});
+
+document.getElementById('btn-start').onclick = startGame;
+document.getElementById('btn-restart').onclick = () => {
+  document.getElementById('overlay-gameover').style.display = 'none';
+  startGame();
+};
+
+document.getElementById('settings-btn').onclick = () => {
+  buildSettings(settingsLetter);
+  document.getElementById('settings-modal').classList.add('open');
+};
+document.getElementById('settings-close').onclick = () => {
+  document.getElementById('settings-modal').classList.remove('open');
+};
+document.getElementById('settings-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('settings-modal'))
+    document.getElementById('settings-modal').classList.remove('open');
+});
+
+// Start animation
+animate();
+</script>
+</body>
+</html>

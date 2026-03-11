@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>בועות האותיות 🫧</title>
-<style>
+</title>•°.𓏸𓈒בועות האותיות 𓈒𓏸‪‪.°•</title>
+ <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     background: linear-gradient(135deg, #0a0118 0%, #1a0533 50%, #0d0222 100%);
@@ -128,6 +128,8 @@
     align-items: center;
     justify-content: center;
     z-index: 100;
+    overflow-y: auto;
+    padding: 16px;
   }
   #settings-modal.open { display: flex; }
 
@@ -135,8 +137,8 @@
     background: linear-gradient(135deg, #1a0533, #2a0a4a);
     border: 1px solid rgba(200,120,255,0.3);
     border-radius: 24px;
-    padding: 28px;
-    width: 480px;
+    padding: 24px;
+    width: 500px;
     max-width: 95vw;
     box-shadow: 0 0 60px rgba(150,50,255,0.4);
   }
@@ -145,7 +147,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
   }
   #settings-title { font-size: 22px; font-weight: bold; color: #C77DFF; }
   #settings-close {
@@ -158,13 +160,132 @@
     font-size: 18px;
   }
 
+  /* Settings tabs */
+  .s-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 4px;
+  }
+  .s-tab {
+    flex: 1;
+    padding: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.5);
+    background: transparent;
+    font-family: 'Arial Hebrew', Arial, sans-serif;
+    transition: all 0.2s;
+  }
+  .s-tab.active {
+    background: linear-gradient(135deg, #C77DFF, #9B59B6);
+    color: white;
+    box-shadow: 0 2px 10px rgba(180,100,255,0.4);
+  }
+  .s-panel { display: none; }
+  .s-panel.active { display: block; }
+
+  /* Game settings controls */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    gap: 12px;
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-label { font-size: 15px; color: rgba(255,255,255,0.85); }
+  .setting-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+  .slider-wrap { display: flex; align-items: center; gap: 10px; }
+  .slider-val {
+    min-width: 36px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #C77DFF;
+  }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 130px;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.15);
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C77DFF, #9B59B6);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(180,100,255,0.6);
+  }
+
+  /* Letter selection */
+  .section-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  #active-letters-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .letter-toggle {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.4);
+    font-family: 'Arial Hebrew', Arial, sans-serif;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .letter-toggle.on {
+    background: linear-gradient(135deg, #C77DFF44, #9B59B644);
+    border-color: #C77DFF;
+    color: white;
+    box-shadow: 0 0 12px rgba(200,120,255,0.4);
+  }
+  .letter-toggle.on::after {
+    content: '✓';
+    position: absolute;
+    top: -4px; right: -4px;
+    width: 14px; height: 14px;
+    background: #C77DFF;
+    border-radius: 50%;
+    font-size: 9px;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 14px;
+    text-align: center;
+  }
+  #letters-warning {
+    font-size: 12px;
+    color: #FF6B6B;
+    margin-top: 6px;
+    min-height: 18px;
+  }
+
+  /* Dictionary tab */
   #letter-tabs {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
-
   .letter-tab {
     width: 44px; height: 44px;
     border-radius: 12px;
@@ -182,13 +303,11 @@
     border-color: #C77DFF;
     box-shadow: 0 0 16px rgba(200,120,255,0.5);
   }
-
   #words-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
   }
-
   .word-card {
     background: rgba(255,255,255,0.07);
     border-radius: 14px;
@@ -202,8 +321,7 @@
   }
   .word-card-emoji { font-size: 36px; }
   .word-card-label { font-size: 15px; color: rgba(255,255,255,0.85); font-weight: bold; }
-
-  #settings-footer { margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.3); text-align: center; }
+  #settings-footer { margin-top: 12px; font-size: 12px; color: rgba(255,255,255,0.3); text-align: center; }
 </style>
 </head>
 <body>
@@ -235,6 +353,7 @@
     <div class="overlay-title">בועות האותיות</div>
     <div class="overlay-sub">לחץ על בועה עם מילה שמתחילה באות שבמרכז!</div>
     <button class="game-btn" id="btn-start">התחל משחק! 🚀</button>
+    <button class="game-btn" id="btn-settings-home" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(200,120,255,0.4);font-size:16px;padding:10px 28px;box-shadow:none;">⚙️ הגדרות ←</button>
   </div>
 
   <div class="overlay" id="overlay-gameover">
@@ -252,12 +371,64 @@
 <div id="settings-modal">
   <div id="settings-box">
     <div id="settings-header">
-      <div id="settings-title">⚙️ מילון המשחק</div>
+      <div id="settings-title">⚙️ הגדרות</div>
       <button id="settings-close">✕</button>
     </div>
-    <div id="letter-tabs"></div>
-    <div id="words-grid"></div>
-    <div id="settings-footer"></div>
+
+    <!-- Tabs -->
+    <div class="s-tabs">
+      <button class="s-tab active" data-tab="game">🎮 משחק</button>
+      <button class="s-tab" data-tab="letters">🔤 אותיות</button>
+      <button class="s-tab" data-tab="dict">📖 מילון</button>
+    </div>
+
+    <!-- Game settings panel -->
+    <div class="s-panel active" id="panel-game">
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">⏱️ זמן לשלב</div>
+          <div class="setting-sub">שניות לכל סיבוב</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="sl-time" min="10" max="60" step="5" value="25">
+          <div class="slider-val" id="val-time">25</div>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">🫧 מספר בועות</div>
+          <div class="setting-sub">כולל בועות שגויות</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="sl-bubbles" min="3" max="10" step="1" value="7">
+          <div class="slider-val" id="val-bubbles">7</div>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">💨 מהירות בועות</div>
+          <div class="setting-sub">עיצוב האתגר</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="sl-speed" min="1" max="5" step="1" value="2">
+          <div class="slider-val" id="val-speed">🐢</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Letters panel -->
+    <div class="s-panel" id="panel-letters">
+      <div class="section-label">לחץ על אות כדי להוסיף/להסיר מהמשחק</div>
+      <div id="active-letters-grid"></div>
+      <div id="letters-warning"></div>
+    </div>
+
+    <!-- Dictionary panel -->
+    <div class="s-panel" id="panel-dict">
+      <div id="letter-tabs"></div>
+      <div id="words-grid"></div>
+      <div id="settings-footer"></div>
+    </div>
   </div>
 </div>
 
@@ -325,7 +496,17 @@ const BUBBLE_COLORS = [
   { bg: '#87CEEB', glow: '#87CEEB88' },
 ];
 
-const canvas = document.getElementById('canvas');
+// --- Game Settings ---
+const gameSettings = {
+  selectedLetters: [...LETTERS],
+  roundTime: 25,
+  bubbleCount: 7,   // total bubbles (correct + distractors)
+  speed: 2,
+};
+
+const SPEED_EMOJIS = ['🐢', '🐢', '🚶', '🚀', '⚡', '🌪️'];
+
+
 const ctx = canvas.getContext('2d');
 const FW = canvas.width, FH = canvas.height;
 
@@ -347,13 +528,16 @@ function generateBubbles(letter) {
   const correct = [...WORD_DATA[letter]].sort(() => Math.random() - 0.5).slice(0, 2);
   const excludeForLetter = { 'א': ['מכונית', 'עוגה', 'עכביש'], 'ק': ['כיסא'] };
   const excluded = excludeForLetter[letter] || [];
+  const numDistractors = Math.max(1, gameSettings.bubbleCount - 2);
   const distractors = [...DISTRACTOR_POOL]
     .filter(w => !excluded.includes(w.word))
-    .sort(() => Math.random() - 0.5).slice(0, 5);
+    .sort(() => Math.random() - 0.5).slice(0, numDistractors);
   const all = [
     ...correct.map(w => ({ ...w, isCorrect: true })),
     ...distractors.map(w => ({ ...w, isCorrect: false })),
   ].sort(() => Math.random() - 0.5);
+
+  const speedMult = 0.3 + (gameSettings.speed - 1) * 0.35;
 
   return all.map((item, i) => {
     let x, y, tries = 0;
@@ -365,7 +549,7 @@ function generateBubbles(letter) {
 
     const color = BUBBLE_COLORS[i % BUBBLE_COLORS.length];
     const angle = Math.random() * Math.PI * 2;
-    const speed = 0.3 + Math.random() * 0.5;
+    const speed = speedMult + Math.random() * speedMult;
     return {
       id: i, ...item,
       x, y,
@@ -384,8 +568,10 @@ function generateBubbles(letter) {
 
 // --- Game flow ---
 function startGame() {
-  state.letterOrder = [...LETTERS].sort(() => Math.random() - 0.5);
+  const letters = gameSettings.selectedLetters.length > 0 ? gameSettings.selectedLetters : LETTERS;
+  state.letterOrder = [...letters].sort(() => Math.random() - 0.5);
   state.score = 0; state.streak = 0; state.round = 0;
+  state.totalRounds = state.letterOrder.length;
   document.getElementById('overlay-idle').style.display = 'none';
   document.getElementById('overlay-gameover').style.display = 'none';
   document.getElementById('timer-wrap').style.display = 'block';
@@ -395,7 +581,7 @@ function startGame() {
 function startRound() {
   const letter = state.letterOrder[state.round];
   state.currentLetter = letter;
-  state.timer = 25;
+  state.timer = gameSettings.roundTime;
   state.bubbles = generateBubbles(letter);
   state.centerScale = 1.3;
   state.phase = 'playing';
@@ -499,7 +685,7 @@ function updateHUD() {
     state.phase === 'playing' ? (state.round + 1) + '/' + state.totalRounds : '-';
   const tv = document.getElementById('timer-val');
   tv.textContent = state.timer;
-  tv.style.color = state.timer > 15 ? '#4ECDC4' : state.timer > 8 ? '#FFD700' : '#FF6B6B';
+  tv.style.color = state.timer > gameSettings.roundTime * 0.6 ? '#4ECDC4' : state.timer > gameSettings.roundTime * 0.32 ? '#FFD700' : '#FF6B6B';
   const streak = state.streak;
   document.getElementById('streak-val').textContent =
     streak >= 3 ? '🔥🔥🔥' : streak >= 2 ? '🔥🔥' : streak >= 1 ? '🔥' : '';
@@ -590,8 +776,8 @@ function draw() {
     ctx.restore();
 
     // Timer ring
-    const tAngle = (state.timer / 25) * Math.PI * 2 - Math.PI / 2;
-    const tColor = state.timer > 15 ? '#4ECDC4' : state.timer > 8 ? '#FFD700' : '#FF6B6B';
+    const tAngle = (state.timer / gameSettings.roundTime) * Math.PI * 2 - Math.PI / 2;
+    const tColor = state.timer > gameSettings.roundTime * 0.6 ? '#4ECDC4' : state.timer > gameSettings.roundTime * 0.32 ? '#FFD700' : '#FF6B6B';
     ctx.beginPath();
     ctx.arc(FW/2, FH/2, 78, -Math.PI/2, tAngle);
     ctx.strokeStyle = tColor; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.stroke();
@@ -656,10 +842,81 @@ function draw() {
   }
 }
 
-// --- Settings ---
+// --- Settings UI ---
 let settingsLetter = LETTERS[0];
 
-function buildSettings(letter) {
+// Tab switching
+document.querySelectorAll('.s-tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.s-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  };
+});
+
+// Sliders
+function initSliders() {
+  const slTime = document.getElementById('sl-time');
+  const slBubbles = document.getElementById('sl-bubbles');
+  const slSpeed = document.getElementById('sl-speed');
+
+  slTime.value = gameSettings.roundTime;
+  slBubbles.value = gameSettings.bubbleCount;
+  slSpeed.value = gameSettings.speed;
+  document.getElementById('val-time').textContent = gameSettings.roundTime + '"';
+  document.getElementById('val-bubbles').textContent = gameSettings.bubbleCount;
+  document.getElementById('val-speed').textContent = SPEED_EMOJIS[gameSettings.speed];
+
+  slTime.oninput = () => {
+    gameSettings.roundTime = +slTime.value;
+    document.getElementById('val-time').textContent = slTime.value + '"';
+  };
+  slBubbles.oninput = () => {
+    gameSettings.bubbleCount = +slBubbles.value;
+    document.getElementById('val-bubbles').textContent = slBubbles.value;
+  };
+  slSpeed.oninput = () => {
+    gameSettings.speed = +slSpeed.value;
+    document.getElementById('val-speed').textContent = SPEED_EMOJIS[+slSpeed.value];
+  };
+}
+
+// Letter toggles
+function buildLetterToggles() {
+  const grid = document.getElementById('active-letters-grid');
+  grid.innerHTML = '';
+  document.getElementById('letters-warning').textContent = '';
+  LETTERS.forEach(l => {
+    const isOn = gameSettings.selectedLetters.includes(l);
+    const btn = document.createElement('button');
+    btn.className = 'letter-toggle' + (isOn ? ' on' : '');
+    btn.textContent = l;
+    btn.dataset.letter = l;
+    btn.onclick = () => {
+      const idx = gameSettings.selectedLetters.indexOf(l);
+      if (idx >= 0) {
+        // deselect
+        if (gameSettings.selectedLetters.length <= 1) {
+          document.getElementById('letters-warning').textContent = '⚠️ חייבת להיות לפחות אות אחת!';
+          setTimeout(() => { document.getElementById('letters-warning').textContent = ''; }, 2000);
+          return;
+        }
+        gameSettings.selectedLetters.splice(idx, 1);
+        btn.classList.remove('on');
+      } else {
+        // select
+        gameSettings.selectedLetters.push(l);
+        btn.classList.add('on');
+      }
+      document.getElementById('letters-warning').textContent = '';
+    };
+    grid.appendChild(btn);
+  });
+}
+
+// Dictionary tab
+function buildDictTab(letter) {
   settingsLetter = letter;
   const tabs = document.getElementById('letter-tabs');
   tabs.innerHTML = '';
@@ -667,7 +924,7 @@ function buildSettings(letter) {
     const btn = document.createElement('button');
     btn.className = 'letter-tab' + (l === letter ? ' active' : '');
     btn.textContent = l;
-    btn.onclick = () => buildSettings(l);
+    btn.onclick = () => buildDictTab(l);
     tabs.appendChild(btn);
   });
 
@@ -682,6 +939,19 @@ function buildSettings(letter) {
 
   document.getElementById('settings-footer').textContent =
     `בכל סיבוב מופיעות 2 מילים אקראיות מתוך ${(WORD_DATA[letter] || []).length}`;
+}
+
+function openSettings() {
+  // Reset to first tab
+  document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.s-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('.s-tab[data-tab="game"]').classList.add('active');
+  document.getElementById('panel-game').classList.add('active');
+
+  initSliders();
+  buildLetterToggles();
+  buildDictTab(settingsLetter);
+  document.getElementById('settings-modal').classList.add('open');
 }
 
 // --- Audio playback from M4A files ---
@@ -714,15 +984,13 @@ canvas.addEventListener('click', e => {
 });
 
 document.getElementById('btn-start').onclick = startGame;
+document.getElementById('btn-settings-home').onclick = openSettings;
 document.getElementById('btn-restart').onclick = () => {
   document.getElementById('overlay-gameover').style.display = 'none';
   startGame();
 };
 
-document.getElementById('settings-btn').onclick = () => {
-  buildSettings(settingsLetter);
-  document.getElementById('settings-modal').classList.add('open');
-};
+document.getElementById('settings-btn').onclick = openSettings;
 document.getElementById('settings-close').onclick = () => {
   document.getElementById('settings-modal').classList.remove('open');
 };

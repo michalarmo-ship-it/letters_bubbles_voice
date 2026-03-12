@@ -473,6 +473,17 @@
     border-color: #C77DFF;
     box-shadow: 0 0 16px rgba(200,120,255,0.5);
   }
+  .letter-tab.dict-only {
+    color: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+  }
+  .letter-tab.dict-only.active {
+    background: rgba(150,150,150,0.25);
+    border-color: rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.6);
+    box-shadow: none;
+  }
   #words-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -689,6 +700,11 @@
             דולפין — Ranae Smith · דרקון — Carlos Cram · קוף — Bob Brewer ·
             קיפוד — Arif Hidayat · קשת — David Brooke Martin · קסדה — Kenny Eliason ·
             קנגורו — Ondrej Machart · קרנף — Nicole Wreyford.<br>
+            <em>מסיחים:</em>
+            כיסא — Kelly Miller · ירח — NASA · פרח — Andrew Small ·
+            שמש — Mikhail Fetsik · עוגה — Jacob Thomas · מלון — Oriol Portell ·
+            נמר — Rishabh Pandoh · לב — Miriam G · ספר — Studio Media ·
+            מכונית — Josh Berquist · עכביש — Julian Schultz.<br>
             חום, אדום, ריבוע — נוצרו למשחק זה.
           </div>
         </div>
@@ -822,9 +838,40 @@ const WORD_DATA = {
     { word: 'קרנף', emoji: '🦏' }, { word: 'קשת', emoji: '🌈' },
     { word: 'קסדה', emoji: '⛑️' }, { word: 'קנגורו', emoji: '🦘' },
   ],
+  // אותיות מילון בלבד (לא במשחק אותיות, כן בהאזנה)
+  'כ': [
+    { word: 'כיסא', emoji: '🪑' },
+  ],
+  'י': [
+    { word: 'ירח', emoji: '🌙' },
+  ],
+  'פ': [
+    { word: 'פרח', emoji: '🌸' },
+  ],
+  'ש': [
+    { word: 'שמש', emoji: '☀️' },
+  ],
+  'ע': [
+    { word: 'עוגה', emoji: '🎂' }, { word: 'עכביש', emoji: '🕷️' },
+  ],
+  'מ': [
+    { word: 'מלון', emoji: '🍈' }, { word: 'מכונית', emoji: '🏎️' },
+  ],
+  'נ': [
+    { word: 'נמר', emoji: '🐆' },
+  ],
+  'ל': [
+    { word: 'לב', emoji: '❤️' },
+  ],
+  'ס': [
+    { word: 'ספר', emoji: '📚' },
+  ],
 };
 
+// אותיות משחק (אותיות + האזנה)
 const LETTERS = ['ר', 'ב', 'ח', 'ת', 'א', 'ג', 'ד', 'ק'];
+// כל האותיות במילון (כולל מילון-בלבד)
+const DICT_LETTERS = ['א','ב','ג','ד','ח','י','כ','ל','מ','נ','ס','ע','פ','ק','ר','ש','ת'];
 const DISTRACTOR_POOL = [
   { word: 'כיסא', emoji: '🪑' }, { word: 'ירח', emoji: '🌙' },
   { word: 'פרח', emoji: '🌸' }, { word: 'שמש', emoji: '☀️' },
@@ -891,24 +938,6 @@ window.addEventListener('resize', () => {
   }
 });
 
-function resizeCanvas() {
-  const wrap = document.getElementById('canvas-wrap');
-  FW = wrap.clientWidth;
-  FH = wrap.clientHeight;
-  canvas.width = FW;
-  canvas.height = FH;
-}
-resizeCanvas();
-window.addEventListener('resize', () => {
-  resizeCanvas();
-  // Reposition bubbles within new bounds
-  for (const b of state.bubbles) {
-    const margin = b.size / 2 + 10;
-    b.x = Math.max(margin, Math.min(FW - margin, b.x));
-    b.y = Math.max(margin, Math.min(FH - margin, b.y));
-  }
-});
-
 let state = {
   phase: 'idle',
   paused: false,
@@ -927,12 +956,24 @@ let animFrame = null;
 // --- Bubble generation ---
 function generateBubbles(letter) {
   const correct = [...WORD_DATA[letter]].sort(() => Math.random() - 0.5).slice(0, 2);
-  const excludeForLetter = { 'א': ['מכונית', 'עוגה', 'עכביש'], 'ק': ['כיסא'] };
-  const excluded = excludeForLetter[letter] || [];
   const numDistractors = Math.max(1, gameSettings.bubbleCount - 2);
-  const distractors = [...DISTRACTOR_POOL]
-    .filter(w => !excluded.includes(w.word))
-    .sort(() => Math.random() - 0.5).slice(0, numDistractors);
+
+  // Build distractor pool: DISTRACTOR_POOL + words from other game letters
+  const otherWords = [];
+  for (const [l, words] of Object.entries(WORD_DATA)) {
+    if (l !== letter) otherWords.push(...words);
+  }
+  const combined = [...DISTRACTOR_POOL, ...otherWords];
+
+  // Exclude words that start with the current letter (to avoid accidental correct answers)
+  const correctWords = new Set(correct.map(w => w.word));
+  const filtered = combined.filter(w =>
+    !correctWords.has(w.word) &&
+    w.word[0] !== letter
+  );
+
+  const distractors = filtered.sort(() => Math.random() - 0.5).slice(0, numDistractors);
+
   const all = [
     ...correct.map(w => ({ ...w, isCorrect: true })),
     ...distractors.map(w => ({ ...w, isCorrect: false })),
@@ -993,10 +1034,12 @@ function startGame(mode) {
   state.paused = false;
 
   if (gameSettings.gameMode === 'listen') {
-    // Build flat list of all words from selected letters
+    // Build flat list: selected game letters + all dict-only letters
     const letters = gameSettings.selectedLetters.length > 0 ? gameSettings.selectedLetters : LETTERS;
+    const dictOnlyLetters = DICT_LETTERS.filter(l => !LETTERS.includes(l));
+    const allListenLetters = [...letters, ...dictOnlyLetters];
     const wordList = [];
-    letters.forEach(l => (WORD_DATA[l] || []).forEach(w => wordList.push(w)));
+    allListenLetters.forEach(l => (WORD_DATA[l] || []).forEach(w => wordList.push(w)));
     state.letterOrder = wordList.sort(() => Math.random() - 0.5);
   } else {
     const letters = gameSettings.selectedLetters.length > 0 ? gameSettings.selectedLetters : LETTERS;
@@ -1420,10 +1463,12 @@ function buildDictTab(letter) {
   settingsLetter = letter;
   const tabs = document.getElementById('letter-tabs');
   tabs.innerHTML = '';
-  LETTERS.forEach(l => {
+  DICT_LETTERS.forEach(l => {
     const btn = document.createElement('button');
-    btn.className = 'letter-tab' + (l === letter ? ' active' : '');
+    const isGameLetter = LETTERS.includes(l);
+    btn.className = 'letter-tab' + (l === letter ? ' active' : '') + (isGameLetter ? '' : ' dict-only');
     btn.textContent = l;
+    btn.title = isGameLetter ? '' : 'אות מילון בלבד';
     btn.onclick = () => buildDictTab(l);
     tabs.appendChild(btn);
   });

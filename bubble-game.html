@@ -87,7 +87,7 @@
     backdrop-filter: blur(4px);
   }
 
-  #overlay-idle { background: rgba(10,1,24,0.88); }
+  #overlay-idle { background: transparent; justify-content: center; }
   #overlay-gameover { background: rgba(10,1,24,0.92); display: none; }
 
   .overlay-title { font-size: 32px; font-weight: bold; color: #C77DFF; }
@@ -110,6 +110,84 @@
   .game-btn:hover { transform: scale(1.05); }
   #btn-start { background: linear-gradient(135deg, #C77DFF, #9B59B6); box-shadow: 0 4px 20px rgba(180,100,255,0.5); }
   #btn-restart { background: linear-gradient(135deg, #4ECDC4, #45B7D1); box-shadow: 0 4px 20px rgba(78,205,196,0.4); }
+
+  /* Animated bg bubbles for home screen */
+  #home-bg-bubbles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .hbubble {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    animation: hbFloat linear infinite;
+  }
+  @keyframes hbFloat {
+    0%   { transform: translateY(0) scale(1);   opacity: 0; }
+    10%  { opacity: 0.15; }
+    90%  { opacity: 0.15; }
+    100% { transform: translateY(-110vh) scale(1.3); opacity: 0; }
+  }
+
+  #home-card {
+    position: relative;
+    z-index: 1;
+    background: rgba(15, 3, 35, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(200,120,255,0.25);
+    border-radius: 32px;
+    padding: 44px 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    box-shadow: 0 8px 60px rgba(120,40,220,0.35), inset 0 1px 0 rgba(255,255,255,0.07);
+    max-width: 520px;
+    width: 90%;
+  }
+  #home-deco  { font-size: 26px; letter-spacing: 10px; color: rgba(200,150,255,0.45); }
+  #home-title { font-size: 46px; font-weight: bold; color: #C77DFF;
+                text-shadow: 0 0 40px rgba(200,120,255,0.5); text-align: center; }
+  #home-sub   { font-size: 17px; color: rgba(255,255,255,0.5); text-align: center; }
+
+  .mode-btns {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+  .mode-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 22px 24px;
+    border-radius: 22px;
+    border: 2px solid rgba(200,120,255,0.3);
+    background: rgba(255,255,255,0.07);
+    color: white;
+    cursor: pointer;
+    font-family: 'Arial Hebrew', Arial, sans-serif;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 140px;
+  }
+  .mode-btn:hover {
+    background: rgba(200,120,255,0.2);
+    border-color: #C77DFF;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(200,120,255,0.3);
+  }
+  .mode-btn .mode-icon  { font-size: 46px; }
+  .mode-btn .mode-label { font-size: 22px; font-weight: bold; }
+  .mode-btn .mode-sub   { font-size: 13px; color: rgba(255,255,255,0.5); }
+  #home-tip {
+    font-size: 14px; color: rgba(255,220,100,0.85);
+    background: rgba(255,200,0,0.08); border: 1px solid rgba(255,200,0,0.2);
+    border-radius: 14px; padding: 10px 20px; text-align: center; width: 100%;
+  }
+  #btn-settings-home {
+    width: 100%; font-size: 18px !important; padding: 14px 36px !important;
+  }
 
   #tip {
     flex-shrink: 0;
@@ -218,7 +296,6 @@
     align-items: center;
     justify-content: center;
     z-index: 100;
-    overflow-y: auto;
     padding: 16px;
   }
   #settings-modal.open { display: flex; }
@@ -226,46 +303,49 @@
   #settings-box {
     background: linear-gradient(135deg, #1a0533, #2a0a4a);
     border: 1px solid rgba(200,120,255,0.3);
-    border-radius: 24px;
-    padding: 24px;
-    width: 500px;
-    max-width: 95vw;
+    border-radius: 28px;
+    padding: 28px;
+    width: min(680px, 96vw);
+    max-height: 92vh;
+    overflow-y: auto;
     box-shadow: 0 0 60px rgba(150,50,255,0.4);
+    display: flex;
+    flex-direction: column;
   }
 
   #settings-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
   }
-  #settings-title { font-size: 22px; font-weight: bold; color: #C77DFF; }
+  #settings-title { font-size: 26px; font-weight: bold; color: #C77DFF; }
   #settings-close {
     background: rgba(255,255,255,0.1);
     border: none;
     border-radius: 50%;
-    width: 34px; height: 34px;
+    width: 40px; height: 40px;
     cursor: pointer;
     color: white;
-    font-size: 18px;
+    font-size: 20px;
   }
 
   /* Settings tabs */
   .s-tabs {
     display: flex;
     gap: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     background: rgba(255,255,255,0.05);
-    border-radius: 14px;
-    padding: 4px;
+    border-radius: 16px;
+    padding: 5px;
   }
   .s-tab {
     flex: 1;
-    padding: 8px;
-    font-size: 14px;
+    padding: 11px 8px;
+    font-size: 15px;
     font-weight: bold;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     cursor: pointer;
     color: rgba(255,255,255,0.5);
     background: transparent;
@@ -285,56 +365,56 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 0;
+    padding: 18px 0;
     border-bottom: 1px solid rgba(255,255,255,0.07);
-    gap: 12px;
+    gap: 16px;
   }
   .setting-row:last-child { border-bottom: none; }
-  .setting-label { font-size: 15px; color: rgba(255,255,255,0.85); }
-  .setting-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  .setting-label { font-size: 17px; color: rgba(255,255,255,0.9); }
+  .setting-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
 
-  .slider-wrap { display: flex; align-items: center; gap: 10px; }
+  .slider-wrap { display: flex; align-items: center; gap: 12px; }
   .slider-val {
-    min-width: 36px;
+    min-width: 44px;
     text-align: center;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
     color: #C77DFF;
   }
   input[type=range] {
     -webkit-appearance: none;
-    width: 130px;
-    height: 6px;
-    border-radius: 3px;
+    width: clamp(100px, 20vw, 160px);
+    height: 7px;
+    border-radius: 4px;
     background: rgba(255,255,255,0.15);
     outline: none;
   }
   input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 20px; height: 20px;
+    width: 24px; height: 24px;
     border-radius: 50%;
     background: linear-gradient(135deg, #C77DFF, #9B59B6);
     cursor: pointer;
-    box-shadow: 0 0 8px rgba(180,100,255,0.6);
+    box-shadow: 0 0 10px rgba(180,100,255,0.6);
   }
 
   /* Letter selection */
   .section-label {
-    font-size: 12px;
+    font-size: 13px;
     color: rgba(255,255,255,0.4);
     letter-spacing: 1px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   #active-letters-grid {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     flex-wrap: wrap;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
   .letter-toggle {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    font-size: 24px;
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    font-size: 28px;
     font-weight: bold;
     cursor: pointer;
     border: 2px solid rgba(255,255,255,0.15);
@@ -348,25 +428,25 @@
     background: linear-gradient(135deg, #C77DFF44, #9B59B644);
     border-color: #C77DFF;
     color: white;
-    box-shadow: 0 0 12px rgba(200,120,255,0.4);
+    box-shadow: 0 0 14px rgba(200,120,255,0.4);
   }
   .letter-toggle.on::after {
     content: '✓';
     position: absolute;
-    top: -4px; right: -4px;
-    width: 14px; height: 14px;
+    top: -5px; right: -5px;
+    width: 16px; height: 16px;
     background: #C77DFF;
     border-radius: 50%;
-    font-size: 9px;
+    font-size: 10px;
     display: flex; align-items: center; justify-content: center;
-    line-height: 14px;
+    line-height: 16px;
     text-align: center;
   }
   #letters-warning {
-    font-size: 12px;
+    font-size: 13px;
     color: #FF6B6B;
-    margin-top: 6px;
-    min-height: 18px;
+    margin-top: 8px;
+    min-height: 20px;
   }
 
   /* Dictionary tab */
@@ -374,12 +454,12 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 16px;
+    margin-bottom: 0;
   }
   .letter-tab {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    font-size: 22px;
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    font-size: 26px;
     font-weight: bold;
     cursor: pointer;
     border: 2px solid rgba(255,255,255,0.15);
@@ -395,43 +475,43 @@
   }
   #words-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    max-height: 320px;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    max-height: 380px;
     overflow-y: auto;
     padding-right: 4px;
   }
   .word-card {
     background: rgba(255,255,255,0.07);
-    border-radius: 14px;
-    padding: 10px 8px;
+    border-radius: 16px;
+    padding: 14px 10px;
     text-align: center;
     border: 1px solid rgba(255,255,255,0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     cursor: pointer;
     transition: background 0.15s;
   }
   .word-card:hover { background: rgba(200,120,255,0.15); border-color: rgba(200,120,255,0.3); }
-  .word-card-emoji { font-size: 36px; }
+  .word-card-emoji { font-size: 44px; }
   .word-card-img {
-    width: 64px; height: 64px;
+    width: 80px; height: 80px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 12px;
     background: rgba(255,255,255,0.05);
   }
   .word-card-img-placeholder {
-    width: 64px; height: 64px;
-    border-radius: 10px;
+    width: 80px; height: 80px;
+    border-radius: 12px;
     background: rgba(255,255,255,0.05);
     display: flex; align-items: center; justify-content: center;
-    font-size: 32px;
+    font-size: 44px;
   }
-  .word-card-label { font-size: 15px; color: rgba(255,255,255,0.85); font-weight: bold; }
+  .word-card-label { font-size: 16px; color: rgba(255,255,255,0.9); font-weight: bold; }
   .word-card-audio { font-size: 11px; color: rgba(200,120,255,0.6); margin-top: 1px; }
-  #settings-footer { margin-top: 12px; font-size: 12px; color: rgba(255,255,255,0.3); text-align: center; }
+  #settings-footer { margin-top: 16px; font-size: 13px; color: rgba(255,255,255,0.3); text-align: center; }
 
   /* Pause button */
   #pause-btn {
@@ -458,32 +538,6 @@
   #overlay-pause.visible { display: flex; }
 
   /* Mode selection on start screen */
-  .mode-btns {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .mode-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 14px 20px;
-    border-radius: 18px;
-    border: 2px solid rgba(200,120,255,0.3);
-    background: rgba(255,255,255,0.08);
-    color: white;
-    cursor: pointer;
-    font-family: 'Arial Hebrew', Arial, sans-serif;
-    transition: all 0.2s;
-    min-width: 110px;
-  }
-  .mode-btn:hover { background: rgba(200,120,255,0.2); border-color: #C77DFF; transform: scale(1.04); }
-  .mode-btn .mode-icon { font-size: 32px; }
-  .mode-btn .mode-label { font-size: 15px; font-weight: bold; }
-  .mode-btn .mode-sub { font-size: 11px; color: rgba(255,255,255,0.5); }
-
   /* Display mode toggle in settings */
   .toggle-group {
     display: flex;
@@ -536,25 +590,26 @@
   <canvas id="canvas"></canvas>
 
   <div class="overlay" id="overlay-idle">
-    <div style="font-size:36px">∘˙○˚.•</div>
-    <div class="overlay-title">בועות האותיות</div>
-    <div class="overlay-sub">בחר סוג משחק:</div>
-    <div class="mode-btns">
-      <button class="mode-btn" id="btn-mode-letters">
-        <span class="mode-icon">🔤</span>
-        <span class="mode-label">אותיות</span>
-        <span class="mode-sub">מצא מילה לפי אות</span>
-      </button>
-      <button class="mode-btn" id="btn-mode-listen">
-        <span class="mode-icon">👂</span>
-        <span class="mode-label">האזנה</span>
-        <span class="mode-sub">שמע מילה ומצא תמונה</span>
-      </button>
+    <div id="home-bg-bubbles"></div>
+    <div id="home-card">
+      <div id="home-deco">∘˙○˚.•</div>
+      <div id="home-title">בועות האותיות</div>
+      <div id="home-sub">בחר סוג משחק:</div>
+      <div class="mode-btns">
+        <button class="mode-btn" id="btn-mode-letters">
+          <span class="mode-icon">🔤</span>
+          <span class="mode-label">אותיות</span>
+          <span class="mode-sub">מצא מילה לפי אות</span>
+        </button>
+        <button class="mode-btn" id="btn-mode-listen">
+          <span class="mode-icon">👂</span>
+          <span class="mode-label">האזנה</span>
+          <span class="mode-sub">שמע מילה ומצא תמונה</span>
+        </button>
+      </div>
+      <div id="home-tip">💡 מומלץ להיכנס להגדרות לפני תחילת המשחק</div>
+      <button class="game-btn" id="btn-settings-home" style="background:rgba(255,255,255,0.1);border:1.5px solid rgba(200,120,255,0.4);box-shadow:none;">⚙️ הגדרות ←</button>
     </div>
-    <div style="font-size:12px; color:rgba(255,220,100,0.8); background:rgba(255,200,0,0.1); border:1px solid rgba(255,200,0,0.2); border-radius:12px; padding:8px 16px;">
-      💡 מומלץ להיכנס להגדרות לפני תחילת המשחק
-    </div>
-    <button class="game-btn" id="btn-settings-home" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(200,120,255,0.4);font-size:16px;padding:10px 28px;box-shadow:none;">⚙️ הגדרות ←</button>
   </div>
 
   <div class="overlay" id="overlay-pause">
@@ -801,13 +856,13 @@ const gameSettings = {
 
 const SPEED_EMOJIS = ['🐢', '🐢', '🚶', '🚀', '⚡', '🌪️'];
 
-// Image cache — tries .jpg first, then .png
+// Image cache — tries .png first (transparent bg), then .jpg
 const imgCache = {};
 function loadImg(word) {
   if (imgCache[word]) return imgCache[word];
   const img = new Image();
-  img.src = word + '.jpg';
-  img.onerror = () => { img.src = word + '.png'; };
+  img.src = word + '.png';
+  img.onerror = () => { img.src = word + '.jpg'; };
   imgCache[word] = img;
   return img;
 }
@@ -1431,12 +1486,36 @@ function openSettings() {
   document.getElementById('settings-modal').classList.add('open');
 }
 
+// --- Animated home screen background bubbles ---
+function initHomeBubbles() {
+  const container = document.getElementById('home-bg-bubbles');
+  const colors = ['#C77DFF','#4ECDC4','#FF9A9E','#F0E68C','#87CEEB','#DDA0DD','#98D8C8'];
+  container.innerHTML = '';
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement('div');
+    b.className = 'hbubble';
+    const size = 40 + Math.random() * 110;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    b.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%; bottom:-${size}px;
+      background: radial-gradient(circle at 35% 35%, ${color}55, ${color}11);
+      border: 1px solid ${color}44;
+      animation-delay:${Math.random()*12}s;
+      animation-duration:${8+Math.random()*14}s;
+    `;
+    container.appendChild(b);
+  }
+}
+initHomeBubbles();
+
 function goHome() {
   clearInterval(timerInterval);
   state.phase = 'idle';
   state.paused = false;
   state.bubbles = []; state.particles = []; state.effects = [];
   document.getElementById('overlay-idle').style.display = 'flex';
+  initHomeBubbles();
   document.getElementById('overlay-gameover').style.display = 'none';
   document.getElementById('overlay-pause').classList.remove('visible');
   document.getElementById('hint').style.visibility = 'hidden';
